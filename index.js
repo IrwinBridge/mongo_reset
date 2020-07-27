@@ -41,6 +41,11 @@ const mongo_resetup = async () => {
   await execute("sh /home/oleg/job/helpers/mongo-reset/mongo.script.1.sh");
   console.log("6. mongodb root user has been created");
 
+  // Restore mongo from production
+  await execute("mongorestore --gzip --archive=${GZ_BACKUP_FILE}");
+  console.log("restored from production");
+  await sleep(5000);
+
   // 7. Change content of the mongodb.conf to uncomment security checks
   await execute(
     "sudo bash -c 'cat /home/oleg/job/helpers/mongo-reset/2.mongodb.conf > /etc/mongodb.conf'"
@@ -65,6 +70,11 @@ const mongo_resetup = async () => {
   // 11. Restart mongodb service
   await execute("sudo systemctl restart mongodb");
   console.log("11. mongodb service successfully restarted");
+
+  // 12. Initiate replica set
+  await sleep(5000);
+  await execute("sh /home/oleg/job/helpers/mongo-reset/mongo.script.3.sh");
+  console.log("12. Replica set initiated");
 
   console.log("MONGODB WAS SUCCESSFULLY RE-SETUP!");
 };
